@@ -1,32 +1,31 @@
-using System.Diagnostics;
-using BizSecureDemo_22180023.Models;
+using System.Security.Claims;
+using BizSecureDemo_22180023.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace BizSecureDemo_22180023.Controllers
+namespace BizSecureDemo.Controllers;
+
+[Authorize]
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly AppDbContext _db;
+    public HomeController(AppDbContext db) => _db = db;
+
+    public async Task<IActionResult> Index()
     {
-        private readonly ILogger<HomeController> _logger;
+        var uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!); //Взима ID-то на логнатия потребител
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        var myOrders = await _db.Orders
+            .Where(o => o.UserId == uid)
+            .OrderByDescending(o => o.Id)
+            .ToListAsync(); // Чете поръчките от базата спрямо логнатия потребител
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        var allOrders = await _db.Orders
+            .OrderByDescending(o => o.Id)
+            .ToListAsync(); // Чете всички поръчки от базата
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        ViewBag.AllOrders = allOrders; //Подава всички поръчки към View-то през ViewBag. ViewBag е „чанта“ за допълнителни данни към View-то. Така View-то може да показва и публичен списък от поръчки.
+        return View(myOrders);
     }
 }
