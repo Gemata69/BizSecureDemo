@@ -46,7 +46,7 @@ namespace BizSecureDemo_22180023.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("BizSecureDemo_22180023.Data.Order", b =>
@@ -72,7 +72,7 @@ namespace BizSecureDemo_22180023.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 #pragma warning restore 612, 618
         }
